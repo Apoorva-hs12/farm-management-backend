@@ -1,3 +1,4 @@
+// 🔥 Handle crashes (VERY IMPORTANT)
 process.on('uncaughtException', (err) => {
   console.error('UNCAUGHT EXCEPTION:', err);
 });
@@ -5,6 +6,7 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (err) => {
   console.error('UNHANDLED REJECTION:', err);
 });
+
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
@@ -19,25 +21,29 @@ const healthRoutes = require('./routes/health');
 const userRoutes = require('./routes/users');
 
 const app = express();
+
+// ✅ Use dynamic port (FIX FOR RAILWAY)
 const PORT = process.env.PORT || 4000;
+
 const SECRET_KEY = 'gokulam_super_secret_key';
+
+// Middleware
 app.use(cors({
   origin: '*'
 }));
 app.use(express.json());
 
-// Root health check
+// ✅ Root route
 app.get('/', (req, res) => {
-  res.send('<h1>Gokulam Backend API is running!</h1><p>Main app is on <a href="http://localhost:3000">port 3000</a></p>');
+  res.send('<h1>✅ Backend is running successfully</h1>');
 });
 
-
-// Auth Middleware
+// 🔐 Auth Middleware
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
-  if (token == null) return res.sendStatus(401);
+  if (!token) return res.sendStatus(401);
 
   jwt.verify(token, SECRET_KEY, (err, user) => {
     if (err) return res.sendStatus(403);
@@ -55,9 +61,8 @@ app.use('/api/dashboard', authenticateToken, dashboardRoutes);
 app.use('/api/health', authenticateToken, healthRoutes);
 app.use('/api/users', authenticateToken, userRoutes);
 
+// 🚀 Start server safely
 async function start() {
-  const PORT = process.env.PORT || 4000;
-
   try {
     await initDB();
     console.log("✅ Database connected");
