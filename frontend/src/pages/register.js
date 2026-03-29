@@ -18,23 +18,18 @@ export function attachEvents() {
       createBtn.disabled = true;
       createBtn.innerText = 'Creating Account...';
 
-      const res = await fetch('https://farm-management-backend-hbi6.onrender.com/api/auth/register', {
+      const data = await apiFetch('/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, farm_name, village, language, phone, password })
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
       // Auto login after register
-      const loginRes = await fetch('https://farm-management-backend-hbi6.onrender.com/api/auth/login', {
+      const loginData = await apiFetch('/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone, password })
       });
-      const loginData = await loginRes.json();
-      if (!loginRes.ok) throw new Error(loginData.error);
 
       setToken(loginData.token, loginData.user);
       window.navigateFromInline('dashboard');

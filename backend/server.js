@@ -22,20 +22,19 @@ const userRoutes = require('./routes/users');
 
 const app = express();
 
-// ✅ Use dynamic port (FIX FOR RAILWAY)
+// ✅ Use dynamic port for Railway
 const PORT = process.env.PORT || 4000;
 
-const SECRET_KEY = 'gokulam_super_secret_key';
+// ✅ Use environment variable for secret, or fallback to default
+const SECRET_KEY = process.env.JWT_SECRET || 'gokulam_super_secret_key';
 
 // Middleware
-app.use(cors({
-  origin: '*'
-}));
+app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-// ✅ Root route
+// ✅ Root route (Health Check for Deployment)
 app.get('/', (req, res) => {
-  res.send('<h1>✅ Backend is running successfully</h1>');
+  res.status(200).send(`<h1>🚜 Gokulam Backend Live</h1><p>Status: All systems go on port ${PORT}</p>`);
 });
 
 // 🔐 Auth Middleware
@@ -43,10 +42,16 @@ const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
-  if (!token) return res.sendStatus(401);
+  if (!token) {
+    console.error('🚫 Token missing in request header');
+    return res.sendStatus(401);
+  }
 
   jwt.verify(token, SECRET_KEY, (err, user) => {
-    if (err) return res.sendStatus(403);
+    if (err) {
+      console.error('🚫 Invalid token session:', err.message);
+      return res.sendStatus(403);
+    }
     req.user = user;
     next();
   });
@@ -63,15 +68,31 @@ app.use('/api/users', authenticateToken, userRoutes);
 
 // 🚀 Start server safely
 async function start() {
+  console.log(`\n-----------------------------------------`);
+  console.log(`🚀 SYSTEM STARTING IN ${process.env.NODE_ENV || 'production'} MODE...`);
+  console.log(`📅 Time: ${new Date().toLocaleString()}`);
+  
+  // 1. Immediately bind server to 0.0.0.0 (REQUIRED for Railway health checks)
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`✅ PORT READY: Server is listening on port ${PORT}`);
+    console.log(`🔗 Interface: 0.0.0.0`);
+    console.log(`-----------------------------------------\n`);
+  });
+
+  // 2. Connect to database in the background (prevents health-check timeouts)
+  console.log('⏳ Connecting to Database...');
   try {
     await initDB();
-    console.log("✅ Database connected");
+    console.log('✅ DATABASE CONNECTION SUCCESSFUL');
   } catch (err) {
-    console.error("❌ DB FAILED:", err.message);
+    console.error('❌ DATABASE CONNECTION FAILED:', err.message);
+    console.log('⚠️ Server will remain active but DB-dependent routes will fail.');
   }
 
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+  // Handle server errors
+  server.on('error', (err) => {
+    console.error('🔥 SERVER CRASHED:', err);
+    process.exit(1);
   });
 }
 

@@ -1,5 +1,5 @@
 // API helper to communicate with backend
-const API_URL = 'https://farm-management-backend-hbi6.onrender.com/api';
+const API_URL = 'https://farm-management-backend-production-fc7f.up.railway.app/api';
 
 export function getToken() {
   return localStorage.getItem('gokulam_token');

@@ -15,14 +15,11 @@ export function attachEvents() {
     try {
       btn.disabled = true;
       btn.innerText = 'Logging in...';
-      const res = await fetch('http://localhost:4000/api/auth/login', {
+      const data = await apiFetch('/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone, password })
       });
-      
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
       
       setToken(data.token, data.user);
       window.navigateFromInline('dashboard');

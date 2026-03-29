@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const router = express.Router();
-const SECRET_KEY = 'gokulam_super_secret_key';
+const SECRET_KEY = process.env.JWT_SECRET || 'gokulam_super_secret_key';
 
 // Register
 router.post('/register', async (req, res) => {
