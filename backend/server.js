@@ -1,3 +1,10 @@
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT EXCEPTION:', err);
+});
+
+process.on('unhandledRejection', (err) => {
+  console.error('UNHANDLED REJECTION:', err);
+});
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
@@ -49,9 +56,17 @@ app.use('/api/health', authenticateToken, healthRoutes);
 app.use('/api/users', authenticateToken, userRoutes);
 
 async function start() {
-  await initDB();
+  const PORT = process.env.PORT || 4000;
+
+  try {
+    await initDB();
+    console.log("✅ Database connected");
+  } catch (err) {
+    console.error("❌ DB FAILED:", err.message);
+  }
+
   app.listen(PORT, () => {
-    console.log(`Backend server running on http://localhost:${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
   });
 }
 
