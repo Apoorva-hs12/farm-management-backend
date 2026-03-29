@@ -14,8 +14,9 @@ const userRoutes = require('./routes/users');
 const app = express();
 const PORT = 4000;
 const SECRET_KEY = 'gokulam_super_secret_key';
-
-app.use(cors());
+app.use(cors({
+  origin: '*'
+}));
 app.use(express.json());
 
 // Root health check
