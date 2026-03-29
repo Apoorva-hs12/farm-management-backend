@@ -1,4 +1,5 @@
 // ===== GOKULAM APP ROUTER =====
+import './styles/main.css';
 import { getToken, getUser } from './api.js';
 
 const app = document.getElementById('app');
@@ -19,7 +20,7 @@ const routes = {
 
 const protectedRoutes = ['dashboard', 'livestock', 'health', 'finance', 'reports', 'settings'];
 
-window.navigate = async function(page) {
+window.navigate = async function (page) {
   // Auth guards
   const hasToken = !!getToken();
   if (protectedRoutes.includes(page) && !hasToken) {
@@ -57,7 +58,7 @@ function attachEvents(page) {
   if (toggle) toggle.addEventListener('click', toggleSidebar);
   const overlay = document.getElementById('sidebar-overlay');
   if (overlay) overlay.addEventListener('click', closeSidebar);
-  
+
   // Page-specific setup (we now call attach methods imported per page or handled dynamically)
   import(`./pages/${page}.js`).then(m => {
     if (m.attachEvents) m.attachEvents();

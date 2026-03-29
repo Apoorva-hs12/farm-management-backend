@@ -1,8 +1,8 @@
-import { setToken } from '../api.js';
+import { apiFetch, setToken } from '../api.js';
 
 export function attachEvents() {
   document.getElementById('go-login')?.addEventListener('click', () => window.navigateFromInline('login'));
-  
+
   const createBtn = document.getElementById('create-btn');
   createBtn?.addEventListener('click', async () => {
     const name = document.getElementById('reg-name').value;
@@ -11,31 +11,31 @@ export function attachEvents() {
     const language = document.getElementById('reg-lang').value;
     const phone = document.getElementById('reg-phone').value;
     const password = document.getElementById('reg-pass').value;
-    
+
     if (!name || !phone || !password) return alert('Name, phone, and password are required');
-    
+
     try {
       createBtn.disabled = true;
       createBtn.innerText = 'Creating Account...';
-      
-      const res = await fetch('http://localhost:4000/api/auth/register', {
+
+      const res = await fetch('https://farm-management-backend-hbi6.onrender.com/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, farm_name, village, language, phone, password })
       });
-      
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      
+
       // Auto login after register
-      const loginRes = await fetch('http://localhost:4000/api/auth/login', {
+      const loginRes = await fetch('https://farm-management-backend-hbi6.onrender.com/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone, password })
       });
       const loginData = await loginRes.json();
       if (!loginRes.ok) throw new Error(loginData.error);
-      
+
       setToken(loginData.token, loginData.user);
       window.navigateFromInline('dashboard');
     } catch (err) {
