@@ -12,7 +12,7 @@ const healthRoutes = require('./routes/health');
 const userRoutes = require('./routes/users');
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 const SECRET_KEY = 'gokulam_super_secret_key';
 app.use(cors({
   origin: '*'
